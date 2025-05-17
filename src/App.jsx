@@ -5,6 +5,7 @@ function App() {
   const [isListening, setIsListening] = useState(false); // Состояние, показывающее, активно ли прослушивание
 
   const recognition = useRef(null); // Храним экземпляр распознавания речи в useRef, чтобы он не пересоздавался при каждом рендере
+  const lastFinal = useRef("");
 
   // useEffect вызывается один раз при монтировании компонента
   useEffect(() => {
@@ -24,14 +25,16 @@ function App() {
           const result = event.results[i];
 
           if (result.isFinal) {
-            // Если результат окончательный, извлекаем текст
             const finalTranscript = result[0].transcript.trim();
 
-            // Добавляем к уже существующему тексту
-            setText((prevText) => {
-              return prevText + (prevText ? " " : "") + finalTranscript + ".";
-            });
+            // Сравнение с последним добавленным фрагментом
+            if (finalTranscript !== lastFinal.current) {
+              lastFinal.current = finalTranscript;
 
+              setText((prevText) => {
+                return prevText + (prevText ? " " : "") + finalTranscript + ".";
+              });
+            }
           }
         }
       };
